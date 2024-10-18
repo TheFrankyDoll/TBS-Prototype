@@ -42,12 +42,11 @@ public class AbilitiesUI : MonoBehaviour
             }
         }
         
-
-        if (Target.HeroData.LastCasted == null) LastCasted.gameObject.SetActive(false);
+        if (Target.HeroData.LastCastedID == -1) LastCasted.gameObject.SetActive(false);
         else
         {
             LastCasted.gameObject.SetActive(true);
-            LastCasted.sprite = Target.HeroData.LastCasted.GetIcon();
+            LastCasted.sprite = Target.HeroData.Abilities[Target.HeroData.LastCastedID].GetIcon();
         }
     }
 }

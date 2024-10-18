@@ -21,6 +21,7 @@ public class Server_Game : Singleton<Server_Game>
 
     public Server_Hero[] AllHeroes;
 
+    Coroutine CurrentCoroutine;
 
     void Start()
     {
@@ -38,6 +39,8 @@ public class Server_Game : Singleton<Server_Game>
 
     void BeginBattle()
     {
+        if (CurrentCoroutine != null) StopCoroutine(CurrentCoroutine);
+
         AllHeroes = new Server_Hero[2];
         
         Server_Hero left = new(team: Teams.Red, maxHP: Random.Range(75, 251), controlledByAI: false);
@@ -110,7 +113,7 @@ public class Server_Game : Singleton<Server_Game>
             return;
         }
 
-        doTurn(fromS, fromS.Abilities[abilityID] as Server_Ability, targetS);
+        doTurn(fromS, abilityID, targetS);
     }
 
     void doAITurn(Server_Hero from)
@@ -127,20 +130,21 @@ public class Server_Game : Singleton<Server_Game>
         else if (from.Team == Teams.Red) target = AllHeroes.First(x => x.Team == Teams.Blue);
         else target = AllHeroes.First(x => x.Team == Teams.Red);
 
-        doTurn(from, ability, target);
+        doTurn(from, System.Array.FindIndex(from.Abilities, x => x.Equals(ability)), target);
     }
 
-    void doTurn(Server_Hero from, Server_Ability ability, Server_Hero target)
+    void doTurn(Server_Hero from, int abilityID, Server_Hero target)
     {
+        Server_Ability ability = from.Abilities[abilityID] as Server_Ability;
         MidFight = true;
+        
+        ability.UponCast(target);
+        from.LastCastedID = abilityID;
 
         //Here would be a good place to call animations and effects on client's side.
-        ability.UponCast(target);
-        from.LastCasted = ability;
-
         RedrawAllClientHeroes();
 
-        StartCoroutine(afterTurn());
+        CurrentCoroutine = StartCoroutine(afterTurn());
     }
 
 

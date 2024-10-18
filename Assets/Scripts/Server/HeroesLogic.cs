@@ -21,7 +21,7 @@ public class Client_Hero : IdentifiableServerData
     public Client_Ability[] Abilities;
     public List<Client_Effect> AppliedEffects;
 
-    [HideInInspector] public Client_Ability LastCasted;
+    [HideInInspector] public int LastCastedID = -1;
 }
 
 [System.Serializable]
@@ -36,8 +36,7 @@ public class Server_Hero : Client_Hero, IServerItemOf<Client_Hero>
         {
             clientCopy.Abilities[i] = (Abilities[i] as Server_Ability).MakeClientCopy();
         }
-        if (LastCasted == null) clientCopy.LastCasted = null;
-        else clientCopy.LastCasted = (LastCasted as Server_Ability).MakeClientCopy();
+        clientCopy.LastCastedID = LastCastedID;
 
         clientCopy.AppliedEffects = new List<Client_Effect>();
         foreach(var serverEffect in AppliedEffects)
@@ -56,12 +55,7 @@ public class Server_Hero : Client_Hero, IServerItemOf<Client_Hero>
         {
             (Abilities[i] as Server_Ability).UpdateClientData(clientObject.Abilities[i]);
         }
-        if (LastCasted == null) clientObject.LastCasted = null;
-        else
-        {
-            if (clientObject.LastCasted == null) clientObject.LastCasted = (LastCasted as Server_Ability).MakeClientCopy();
-            else (LastCasted as Server_Ability).UpdateClientData(clientObject.LastCasted);
-        }
+        clientObject.LastCastedID = LastCastedID;
 
         clientObject.AppliedEffects = new List<Client_Effect>();
         foreach (var serverEffect in AppliedEffects)

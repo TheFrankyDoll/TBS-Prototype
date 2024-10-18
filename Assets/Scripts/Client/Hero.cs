@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 // Client_Hero will use this to send info to related MonoBehaviour object.
@@ -13,15 +14,13 @@ public class Hero : MonoBehaviour, IHeroBehaviour
     public HPBarUI relatedBar;
     public AbilitiesUI relatedAbilities;
 
-    void Start()
+    void Awake()
     {
         relatedBar = Instantiate(GameData.main.HPBarPrefab, GameData.main.HeroUIs).GetComponent<HPBarUI>();
         relatedBar.Target = this;
 
         relatedAbilities = Instantiate(GameData.main.AbilitiesUIPrefab, GameData.main.HeroUIs).GetComponent<AbilitiesUI>();
         relatedAbilities.Target = this;
-
-        ClientSideData.OnTurnEnd += RedrawUIs;
     }
 
     public void RedrawUIs()
@@ -29,14 +28,14 @@ public class Hero : MonoBehaviour, IHeroBehaviour
         relatedBar.Redraw();
         relatedAbilities.Redraw();
     }
-    public void SendNumber(string number, Color color) => relatedBar.SendNumber(number, color);
+    public void SendNumber(string number, Color color)
+    {
+        if(relatedBar) relatedBar.SendNumber(number, color);
+    }
 
     private void OnDestroy()
     {
-        ClientSideData.OnTurnEnd -= RedrawUIs;
         if (relatedBar) Destroy(relatedBar);
-        if(relatedAbilities) Destroy(relatedAbilities);
+        if (relatedAbilities) Destroy(relatedAbilities);
     }
-
-    
 }
